@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pabrik SAMSAT: Generator Plat Permutasi</title>
+    <style>
+        :root {
+            --bg-dark: #1e272e;
+            --panel-bg: #2f3640;
+            --primary: #00a8ff;
+            --warning: #fbc531;
+            --plate-bg: #f5f6fa;
+            --plate-text: #2f3640;
+            --text-light: #dcdde1;
+            --danger: #e84118;
+            --success: #4cd137;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--panel-bg);
+            max-width: 950px;
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            padding: 30px;
+            border-top: 6px solid var(--primary);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 0;
+            font-size: 2.2em;
+        }
+
+        .mission-box {
+            background-color: rgba(251, 197, 49, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        .interactive-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: #272d36;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #3f4752;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .input-box {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label.title-label {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            color: var(--primary);
+        }
+
+        /* --- STYLING TOMBOL KARAKTER --- */
+        .char-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: #1e272e;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #3f4752;
+        }
+
+        .char-checkbox { display: none; }
+
+        .char-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            background: #353b48;
+            color: #7f8fa6;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.4em;
+            font-family: 'Courier New', Courier, monospace;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            user-select: none;
+        }
+
+        .char-btn:hover {
+            background: #404857;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .char-checkbox:checked + .char-btn {
+            background: rgba(0, 168, 255, 0.2);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 168, 255, 0.4);
+            transform: scale(1.1);
+        }
+
+        .help-text {
+            font-size: 0.9em;
+            color: #7f8fa6;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        /* --- STYLING SLIDER --- */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+            background: #1e272e;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #3f4752;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            accent-color: var(--warning);
+            cursor: pointer;
+        }
+
+        .r-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--warning);
+            background: #2f3640;
+            padding: 5px 15px;
+            border-radius: 8px;
+            min-width: 30px;
+            text-align: center;
+            border: 1px solid #3f4752;
+        }
+
+        .btn-main {
+            background: linear-gradient(135deg, #0097e6, #00a8ff);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            align-self: center;
+            margin-top: 10px;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 168, 255, 0.4);
+        }
+        
+        .btn-main:disabled {
+            background: #3f4752;
+            color: #7f8fa6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #error-msg {
+            color: var(--danger);
+            background: rgba(232, 65, 24, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+            border: 1px solid var(--danger);
+        }
+
+        /* --- VISUALISASI SLOT MESIN --- */
+        .visual-container {
+            margin-top: 30px;
+            padding: 25px;
+            background: #111418;
+            border-radius: 10px;
+            border: 1px solid #3f4752;
+            display: none;
+        }
+
+        /* Styling untuk Bahan Baku di Atas Kotak */
+        .active-chars-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            padding-bottom: 20px;
+            border-bottom: 2px dashed #3f4752;
+        }
+
+        .active-char-badge {
+            background: rgba(0, 168, 255, 0.15);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1.3em;
+            font-family: 'Courier New', Courier, monospace;
+            box-shadow: 0 2px 8px rgba(0, 168, 255, 0.2);
+            animation: fadeInDown 0.4s forwards;
+        }
+
+        .slots-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .slot-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(15px);
+            animation: slideUp 0.4s forwards;
+        }
+
+        .choice-tooltip {
+            background: var(--warning);
+            color: #000;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            position: relative;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .choice-tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px 5px 0;
+            border-style: solid;
+            border-color: var(--warning) transparent transparent transparent;
+        }
+
+        .empty-slot {
+            width: 60px;
+            height: 70px;
+            border: 2px dashed var(--warning);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--warning);
+            background: rgba(251, 197, 49, 0.05);
+            font-size: 1.2em;
+        }
+
+        .math-conclusion {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(76, 209, 55, 0.1);
+            border-radius: 8px;
+            color: var(--text-light);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            border-left: 4px solid var(--success);
+        }
+
+        .highlight-result {
+            color: var(--success);
+            font-size: 1.6em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* --- PABRIK CETAK PLAT (HASIL) --- */
+        .combinations-area {
+            margin-top: 25px;
+            padding: 20px;
+            background: #272d36;
+            border-radius: 10px;
+            border: 1px solid #3f4752;
+            display: none;
+        }
+
+        .combinations-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 15px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #111418;
+            border-radius: 8px;
+            border: 1px solid #3f4752;
+        }
+
+        .mini-plate {
+            background: var(--plate-bg);
+            color: var(--plate-text);
+            border: 2px solid var(--plate-text);
+            border-radius: 5px;
+            padding: 5px 15px;
+            font-family: 'Arial Black', Impact, sans-serif;
+            font-size: 1.2em;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.5);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            position: relative;
+            overflow: hidden;
+            min-width: 80px;
+        }
+
+        .mini-plate::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--danger);
+        }
+
+        .system-warning {
+            width: 100%;
+            text-align: center;
+            color: var(--warning);
+            padding: 15px;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 1em;
+            background: rgba(251, 197, 49, 0.1);
+            border-radius: 8px;
+            border: 1px dashed var(--warning);
+        }
+
+        .btn-rumus {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 10px 20px;
+            font-size: 0.95em;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+            display: none;
+        }
+
+        .btn-rumus:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .formula-section {
+            margin-top: 20px;
+            background: #111418;
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+            animation: slideUp 0.4s forwards;
+            font-size: 1em;
+            line-height: 1.6;
+        }
+
+        .formula {
+            background: rgba(255,255,255,0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .combinations-grid::-webkit-scrollbar { width: 8px; }
+        .combinations-grid::-webkit-scrollbar-track { background: #1e272e; border-radius: 10px; }
+        .combinations-grid::-webkit-scrollbar-thumb { background: #7f8fa6; border-radius: 10px; }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes popIn {
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🏭 Sistem Cetak Plat SAMSAT</h1>
+        
+        <div class="mission-box">
+            <strong>Mode Plat VIP Custom</strong><br>
+            Pilih karakter (angka/huruf) yang ingin dimasukkan ke dalam mesin. Sistem SAMSAT ini mengatur agar <strong>tidak ada karakter yang boleh diulang</strong> dalam satu plat. Mari kita hitung berapa plat yang bisa diproduksi pabrik!
+        </div>
+
+        <div class="interactive-area">
+            <div class="input-group">
+                <div class="input-box">
+                    <label class="title-label">Nyalakan Karakter yang Tersedia (n):</label>
+                    <div class="char-grid" id="char-container">
+                        </div>
+                    <div class="help-text" id="n-info">Mesin mendeteksi 4 Karakter aktif (n = 4)</div>
+                </div>
+                
+                <div class="input-box">
+                    <label class="title-label">Panjang Digit Plat Nomor (r):</label>
+                    <div class="slider-container">
+                        <input type="range" id="r-val" min="1" max="5" value="3" oninput="updateSliderDisplay()">
+                        <div class="r-display" id="r-display">3</div>
+                    </div>
+                    <div class="help-text">Geser tuas untuk menentukan panjang kombinasi plat.</div>
+                </div>
+            </div>
+            
+            <div id="error-msg"></div>
+            <button id="btn-start" class="btn-main" onclick="mulaiMesin()">⚙️ Nyalakan Mesin Cetak!</button>
+        </div>
+
+        <div id="visual-container" class="visual-container">
+            <h3 style="text-align: center; margin: 0 0 15px 0; color: #dcdde1; font-weight: normal; font-size: 1.1em;">Bahan Baku (Karakter yang Dipilih):</h3>
+            <div id="active-chars-area" class="active-chars-row"></div>
+
+            <h3 style="text-align: center; margin: 0; color: #7f8fa6; font-weight: normal;">Menganalisis Slot Digit Mesin...</h3>
+            <div id="slots-area" class="slots-row"></div>
+        </div>
+
+        <div id="math-conclusion" class="math-conclusion">
+            <div id="logic-text"></div>
+        </div>
+
+        <div id="combinations-area" class="combinations-area">
+            <h3 style="text-align: center; margin-top: 0; color: var(--primary);">Gudang Produksi Plat Nomor:</h3>
+            <p style="text-align: center; color: #7f8fa6; font-size: 0.9em; margin-top: 0;">Inilah seluruh plat nomor unik yang berhasil dicetak oleh mesin.</p>
+            <div id="combinations-grid" class="combinations-grid"></div>
+            
+            <div style="text-align: center;">
+                <button id="btn-rumus" class="btn-rumus" onclick="tampilkanRumusMatematika()">Lihat Rumus Algoritma SAMSAT</button>
+            </div>
+            <div id="formula-section" class="formula-section"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // Database Karakter (0-9 dan A-E)
+        const charOptions = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E'];
+        
+        let currentChars = [];
+        let globalN = 0, globalR = 0, globalTotal = 0, globalPerkalian = "";
+
+        // Fungsi membuat tombol saat awal halaman dimuat
+        function initCharButtons() {
+            const container = document.getElementById('char-container');
+            const defaultChecked = ['1', '2', 'A', 'B'];
+
+            charOptions.forEach((char) => {
+                const isChecked = defaultChecked.includes(char) ? 'checked' : '';
+                const label = document.createElement('label');
+                label.innerHTML = `
+                    <input type="checkbox" class="char-checkbox" value="${char}" onchange="updateInputState()" ${isChecked}>
+                    <div class="char-btn">${char}</div>
+                `;
+                container.appendChild(label);
+            });
+            updateInputState();
+        }
+
+        // Dipanggil saat tombol karakter diklik
+        function updateInputState() {
+            const checkedBoxes = document.querySelectorAll('.char-checkbox:checked');
+            const rSlider = document.getElementById('r-val');
+            const nInfo = document.getElementById('n-info');
+            const btnStart = document.getElementById('btn-start');
+            const errorMsg = document.getElementById('error-msg');
+
+            globalN = checkedBoxes.length;
+
+            currentChars = Array.from(checkedBoxes).map(box => box.value);
+
+            if (globalN === 0) {
+                nInfo.innerHTML = `<span style="color:var(--danger);">Peringatan: Tidak ada karakter yang menyala!</span>`;
+                rSlider.max = 0;
+                btnStart.disabled = true;
+            } else {
+                nInfo.innerHTML = `Mesin mendeteksi: <strong>${globalN} Karakter Aktif</strong> (n = ${globalN})`;
+                rSlider.max = globalN; 
+                btnStart.disabled = false;
+                errorMsg.style.display = "none";
+            }
+
+            if (parseInt(rSlider.value) > globalN) {
+                rSlider.value = globalN || 1;
+            }
+
+            updateSliderDisplay();
+        }
+
+        function updateSliderDisplay() {
+            const rValue = document.getElementById('r-val').value;
+            document.getElementById('r-display').innerText = rValue;
+        }
+
+        // Algoritma Permutasi
+        function generatePlates(arr, r, maxLimit) {
+            const hasil = [];
+            function permute(current, remaining) {
+                if (hasil.length >= maxLimit) return; 
+                
+                if (current.length === r) {
+                    hasil.push(current);
+                    return;
+                }
+                for (let i = 0; i < remaining.length; i++) {
+                    if (hasil.length >= maxLimit) return; 
+                    let nextCurrent = current + remaining[i];
+                    let nextRemaining = remaining.slice(0, i).concat(remaining.slice(i + 1));
+                    permute(nextCurrent, nextRemaining);
+                }
+            }
+            permute("", arr);
+            return hasil;
+        }
+
+        function mulaiMesin() {
+            if (globalN === 0) return;
+
+            globalR = parseInt(document.getElementById('r-val').value);
+            
+            const visualContainer = document.getElementById('visual-container');
+            const activeCharsArea = document.getElementById('active-chars-area');
+            const slotsArea = document.getElementById('slots-area');
+            const mathConclusion = document.getElementById('math-conclusion');
+            const combinationsArea = document.getElementById('combinations-area');
+            const combosGrid = document.getElementById('combinations-grid');
+            const btnRumus = document.getElementById('btn-rumus');
+            const formulaSection = document.getElementById('formula-section');
+
+            // Reset UI Visual
+            visualContainer.style.display = "block";
+            activeCharsArea.innerHTML = ""; // Bersihkan bahan baku sebelumnya
+            slotsArea.innerHTML = "";
+            mathConclusion.style.display = "none";
+            combinationsArea.style.display = "none";
+            combosGrid.innerHTML = "";
+            btnRumus.style.display = "none";
+            formulaSection.style.display = "none";
+
+            // 1. Render Bahan Baku (Karakter yang Dipilih) di atas kotak
+            currentChars.forEach((char, i) => {
+                const badge = document.createElement('div');
+                badge.className = 'active-char-badge';
+                badge.innerText = char;
+                badge.style.animationDelay = `${i * 0.1}s`;
+                activeCharsArea.appendChild(badge);
+            });
+
+            // 2. Render Logika Slot Kosong (Filling Slots)
+            let perkalianArr = [];
+            globalTotal = 1;
+            let currentChoices = globalN;
+
+            for (let i = 0; i < globalR; i++) {
+                setTimeout(() => {
+                    const slotWrapper = document.createElement('div');
+                    slotWrapper.className = 'slot-wrapper';
+                    
+                    slotWrapper.innerHTML = `
+                        <div class="choice-tooltip">${currentChoices} Pilihan</div>
+                        <div class="empty-slot">D-${i + 1}</div>
+                    `;
+                    slotsArea.appendChild(slotWrapper);
+
+                    perkalianArr.push(currentChoices);
+                    globalTotal *= currentChoices;
+                    currentChoices--;
+
+                    // Tampilkan kesimpulan jika slot terakhir selesai
+                    if (i === globalR - 1) {
+                        globalPerkalian = perkalianArr.join(' &times; ');
+                        tampilkanKesimpulanLogika();
+                    }
+                }, i * 800); 
+            }
+        }
+
+        function tampilkanKesimpulanLogika() {
+            const mathConclusion = document.getElementById('math-conclusion');
+            const logicText = document.getElementById('logic-text');
+            
+            setTimeout(() => {
+                mathConclusion.style.display = "flex";
+                logicText.innerHTML = `
+                    Karena karakter tidak boleh berulang, mesin memiliki pilihan yang terus berkurang:<br>
+                    <div class="highlight-result">
+                        ${globalPerkalian} = ${globalTotal.toLocaleString('id-ID')} PLAT UNIK
+                    </div>
+                `;
+
+                // Mulai menampilkan cetakan plat nomor massal
+                setTimeout(renderDaftarPlat, 1500); 
+            }, 800);
+        }
+
+        function renderDaftarPlat() {
+            const combinationsArea = document.getElementById('combinations-area');
+            const combosGrid = document.getElementById('combinations-grid');
+            const btnRumus = document.getElementById('btn-rumus');
+            
+            combinationsArea.style.display = "block";
+            
+            const MAX_LIMIT = 150; // Batas limit visual
+            const semuaPlat = generatePlates(currentChars, globalR, MAX_LIMIT);
+
+            semuaPlat.forEach((plat, index) => {
+                setTimeout(() => {
+                    const plateCard = document.createElement('div');
+                    plateCard.className = 'mini-plate';
+                    plateCard.innerText = plat;
+                    combosGrid.appendChild(plateCard);
+                    
+                    // Auto scroll ke bawah
+                    combosGrid.scrollTop = combosGrid.scrollHeight;
+
+                    // Pesan peringatan jika melebihi batas limit
+                    if (index === semuaPlat.length - 1) {
+                        if (globalTotal > MAX_LIMIT) {
+                            const warning = document.createElement('div');
+                            warning.className = 'system-warning';
+                            warning.innerHTML = `⚠️ OVERLOAD! Mesin berhasil memproduksi <strong>${globalTotal.toLocaleString('id-ID')}</strong> plat di gudang pusat. Namun, demi mencegah kerusakan layar, kami hanya menampilkan <strong>${MAX_LIMIT}</strong> cetakan pertama saja.`;
+                            combosGrid.appendChild(warning);
+                            combosGrid.scrollTop = combosGrid.scrollHeight;
+                        }
+                        
+                        setTimeout(() => {
+                            btnRumus.style.display = "inline-block";
+                        }, 500);
+                    }
+                }, index * 40); // Kecepatan cetak per plat
+            });
+        }
+
+        function tampilkanRumusMatematika() {
+            const formulaSection = document.getElementById('formula-section');
+            const btnRumus = document.getElementById('btn-rumus');
+            
+            const nMinR = globalN - globalR;
+            
+            btnRumus.style.display = "none"; 
+            formulaSection.style.display = "block";
+            
+            formulaSection.innerHTML = `
+                <p>Dalam ilmu komputer dan matematika, menyusun karakter tanpa pengulangan di mana <strong>urutan sangat penting</strong> disebut <strong>Permutasi</strong>.</p>
+                <p>Daripada menghitung satu per satu, algoritma SAMSAT menggunakan rumus ini: <span class="formula">P(n, r) = n! / (n - r)!</span></p>
+                <p>Masukkan variabel mesinmu: <span class="formula">P(${globalN}, ${globalR}) = ${globalN}! / (${globalN} - ${globalR})!</span></p>
+                <p>Proses Faktorial: <span class="formula">${globalN}! / ${nMinR}! = ${totalSimbolfaktorial(globalN)} / ${totalSimbolfaktorial(nMinR)}</span></p>
+                <p>Total Produksi: <strong style="color:var(--success); font-size:1.2em;">${globalTotal.toLocaleString('id-ID')}</strong> Plat Nomor</p>
+                <p><em>Perkalian dari logika slot mesin (${globalPerkalian}) yang kamu lihat di awal adalah jalan pintas dari rumus faktorial ini!</em></p>
+            `;
+        }
+
+        function totalSimbolfaktorial(num) {
+            if (num <= 1) return "1";
+            let str = [];
+            for (let i = num; i >= 1; i--) str.push(i);
+            
+            if (str.length > 5) {
+                return str.slice(0, 3).join(' &times; ') + ' &times; ... &times; 1';
+            }
+            return str.join(' &times; ');
+        }
+
+        // Inisialisasi awal saat halaman dibuka
+        window.onload = initCharButtons;
+    </script>
+</body>
+</html>
